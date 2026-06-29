@@ -1,11 +1,7 @@
-%option noyywrap
+%option noyywrap yylineno
 
 %{
 #include <stdio.h>
-#include "syntax.tab.h"      // bison生成
-extern int yylineno;
-
-void yyerror(const char *msg);
 %}
 
 DIGIT       [0-9]
@@ -16,43 +12,39 @@ FLOAT       {DIGIT}+\.{DIGIT}+([eE][+-]?{DIGIT}+)?|\.{DIGIT}+([eE][+-]?{DIGIT}+)
 
 %%
 
-{INT}           {return INT;}    
-{FLOAT}         {return FLOAT;}
-";"             { return SEMI; }
-","             { return COMMA; }
-"="             { return ASSIGNOP; }
-"<="|">="|"<"|">"|"=="|"!="     { return RELOP; }
-"+"             { return PLUS; }
-"-"             { return MINUS; }
-"*"             { return STAR; }
-"/"             { return DIV; }
-"&&"            { return AND; }
-"||"            { return OR; }
-"."             { return DOT; }
-"!"             { return NOT; }
-"int"           { return TYPE; }
-"float"         { return TYPE; }
-"("             { return LP; }
-")"             { return RP; }
-"["             { return LB; }
-"]"             { return RB; }
-"{"             { return LC; }
-"}"             { return RC; }
-"struct"        { return STRUCT; }
-"return"        { return RETURN; }
-"if"            { return IF; }
-"else"          { return ELSE; }
-"while"         { return WHILE; }
-
-{ID}            {
-                    yylval.type_string = strdup(yytext);
-                    return ID;
-                }
+{INT}           { printf("INT\n"); }    
+{FLOAT}         { printf("FLOAT\n"); }
+";"             { printf("SEMI\n"); }
+","             { printf("COMMA\n"); }
+"<="|">="|"<"|">"|"=="|"!="     { printf("RELOP\n"); }
+"="             { printf("ASSIGNOP\n"); }
+"+"             { printf("PLUS\n"); }
+"-"             { printf("MINUS\n"); }
+"*"             { printf("STAR\n"); }
+"/"             { printf("DIV\n"); }
+"&&"            { printf("AND\n"); }
+"||"            { printf("OR\n"); }
+"."             { printf("DOT\n"); }
+"!"             { printf("NOT\n"); }
+"int"           { printf("TYPE\n"); }
+"float"         { printf("TYPE\n"); }
+"("             { printf("LP\n"); }
+")"             { printf("RP\n"); }
+"["             { printf("LB\n"); }
+"]"             { printf("RB\n"); }
+"{"             { printf("LC\n"); }
+"}"             { printf("RC\n"); }
+"struct"        { printf("STRUCT\n"); }
+"return"        { printf("RETURN\n"); }
+"if"            { printf("IF\n"); }
+"else"          { printf("ELSE\n"); }
+"while"         { printf("WHILE\n"); }
+{ID}            { printf("ID\n"); }
 
 
 [ \t\r]+        ;
 
-\n              { yylineno++; }
+\n              ;
 
 "//".*          ;
 
@@ -64,3 +56,17 @@ FLOAT       {DIGIT}+\.{DIGIT}+([eE][+-]?{DIGIT}+)?|\.{DIGIT}+([eE][+-]?{DIGIT}+)
                 }
 
 %%
+int main(int argc,char** argv){
+    if(argc>1){
+        FILE* f=fopen(argv[1],"r");
+        if(!f){
+            perror(argv[1]);
+            return 1;
+        }
+        yyrestart(f);
+        yylex();
+        return 0;
+    }
+    
+    return 1;
+}
